@@ -1,2 +1,2 @@
 # basic-selenium
-example java
+example for java
