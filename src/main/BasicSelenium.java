@@ -1,7 +1,9 @@
 package main;
 
 import java.time.Duration;
+import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
@@ -14,9 +16,11 @@ import org.openqa.selenium.support.ui.Wait;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 public class BasicSelenium {
+	private static Logger logger = Logger.getLogger(BasicSelenium.class);
 	static WebDriver driver = null;
 
 	public static void main(String[] args) throws Exception {
+
 		try {
 			String root = System.getProperty("user.dir");
 			String filepath = "\\driver\\chromedriver-97.exe";
@@ -30,36 +34,54 @@ public class BasicSelenium {
 			driver.get("http://www.google.com");
 
 			// First Page
-			WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-			wait.until(ExpectedConditions.visibilityOfElementLocated(By.name("q")));
+			WebDriverWait wait10 = new WebDriverWait(driver, Duration.ofSeconds(10));
+			WebDriverWait wait25 = new WebDriverWait(driver, Duration.ofSeconds(25));
+			wait10.until(ExpectedConditions.visibilityOfElementLocated(By.name("q")));
 			WebElement searchBox = driver.findElement(By.name("q"));
-			searchBox.sendKeys("Fly Away feat. Anjulie - TheFatRat");
-			waitForElementValueEqual(searchBox, "Fly Away feat. Anjulie - TheFatRat", "value");
+			String searchText = "เตลิด puimekster";
+			searchBox.sendKeys(searchText);
+			waitForElementValueEqual(searchBox, searchText, "value");
 			searchBox.sendKeys(Keys.ENTER);
 
 			// Second Page
-			wait.until(ExpectedConditions
-					.visibilityOfElementLocated(By.xpath("//*[@id=\"hdtb-msb\"]/div[1]/div/div[2]/a")));
-			WebElement videlLink = driver.findElement(By.xpath("//*[@id=\"hdtb-msb\"]/div[1]/div/div[2]/a"));
-			videlLink.click();
+			wait10.until(ExpectedConditions.visibilityOfElementLocated(
+					By.xpath("//*[@id=\"tsf\"]/div[1]/div[1]/div[2]/div[1]/div/div[2]/input")));
+			List<WebElement> menuList = driver.findElements(By.xpath("//*[@id=\"hdtb-msb\"]/div[1]/div/div"));
+			WebElement videoMenu = null;
+			for (WebElement menu : menuList) {
+				if (menu.getText() != null && ("วิดีโอ".equals(menu.getText()) || "Videos".equals(menu.getText()))) {
+					videoMenu = menu;
+				}
+			}
+			if(videoMenu != null) {
+				videoMenu.click();
+			}
 
 			// Third Page
-			wait.until(ExpectedConditions
-					.visibilityOfElementLocated(By.xpath("//*[@id=\"rso\"]/div[2]/div/div/div[1]/a")));
-			WebElement firstVideo = driver.findElement(By.xpath("//*[@id=\"rso\"]/div[2]/div/div/div[1]/a"));
-			firstVideo.click();
+			wait10.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"rso\"]/div")));
+			List<WebElement> orderList = driver.findElements(By.xpath("//*[@id=\"rso\"]/div"));
+			if (!orderList.isEmpty()) {
+				orderList.get(0).findElement(By.xpath(".//div/div/div[1]/a")).click();
+			}
 
 			// Fourth Page
-			wait.until(
-					ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"movie_player\"]/div[5]/button")));
-			WebElement playButton = driver.findElement(By.xpath("//*[@id=\"movie_player\"]/div[5]/button"));
-			playButton.click();
+			wait25.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"movie_player\"]/div")));
+			List<WebElement> videoContentList = driver.findElements(By.xpath("//*[@id=\"movie_player\"]/div"));
 
+			WebElement playButton = null;
+			for (WebElement webElement : videoContentList) {
+				if ("ytp-cued-thumbnail-overlay".equals(webElement.getAttribute("class"))) {
+					playButton = webElement.findElement(By.xpath(".//button"));
+				}
+			}
+			if(playButton != null) {
+				playButton.click();
+			}
 		} catch (Exception e) {
+			logger.error(e);
 			throw e;
 		} finally {
-			Thread.sleep(5500);
-			driver.quit();
+			Runtime.getRuntime().exec("taskkill /im chromedriver-97.exe /f");
 		}
 	}
 
