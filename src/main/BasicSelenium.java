@@ -38,14 +38,14 @@ public class BasicSelenium {
 			WebDriverWait wait25 = new WebDriverWait(driver, Duration.ofSeconds(25));
 			wait10.until(ExpectedConditions.visibilityOfElementLocated(By.name("q")));
 			WebElement searchBox = driver.findElement(By.name("q"));
-			String searchText = "เตลิด puimekster";
+			String searchText = "Hatsune Miku - Calc. (English & Romaji Subs)";
 			searchBox.sendKeys(searchText);
 			waitForElementValueEqual(searchBox, searchText, "value");
 			searchBox.sendKeys(Keys.ENTER);
 
 			// Second Page
-			wait10.until(ExpectedConditions.visibilityOfElementLocated(
-					By.xpath("//*[@id=\"tsf\"]/div[1]/div[1]/div[2]/div[1]/div/div[2]/input")));
+			wait10.until(
+					ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"hdtb-msb\"]/div[1]/div/div")));
 			List<WebElement> menuList = driver.findElements(By.xpath("//*[@id=\"hdtb-msb\"]/div[1]/div/div"));
 			WebElement videoMenu = null;
 			for (WebElement menu : menuList) {
@@ -53,10 +53,9 @@ public class BasicSelenium {
 					videoMenu = menu;
 				}
 			}
-			if(videoMenu != null) {
+			if (videoMenu != null) {
 				videoMenu.click();
 			}
-
 			// Third Page
 			wait10.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"rso\"]/div")));
 			List<WebElement> orderList = driver.findElements(By.xpath("//*[@id=\"rso\"]/div"));
@@ -67,16 +66,28 @@ public class BasicSelenium {
 			// Fourth Page
 			wait25.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"movie_player\"]/div")));
 			List<WebElement> videoContentList = driver.findElements(By.xpath("//*[@id=\"movie_player\"]/div"));
-
 			WebElement playButton = null;
+			WebElement volumeButton = null;
+
 			for (WebElement webElement : videoContentList) {
 				if ("ytp-cued-thumbnail-overlay".equals(webElement.getAttribute("class"))) {
 					playButton = webElement.findElement(By.xpath(".//button"));
+				} else if ("ytp-chrome-bottom".equals(webElement.getAttribute("class"))) {
+					volumeButton = webElement.findElement(By.xpath(".//div[2]/div[1]/span/button"));
 				}
 			}
-			if(playButton != null) {
+			if (volumeButton != null) {
+				for (int i = 0; i < 20; i++) {
+					volumeButton.sendKeys(Keys.ARROW_DOWN);
+				}
+				for (int i = 0; i < 5; i++) {
+					volumeButton.sendKeys(Keys.ARROW_UP);
+				}
+			}
+			if (playButton != null) {
 				playButton.click();
 			}
+
 		} catch (Exception e) {
 			logger.error(e);
 			throw e;
